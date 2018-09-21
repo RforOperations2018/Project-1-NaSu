@@ -1,5 +1,5 @@
 ---
-title: "Starwars Flex Dashboard"
+title: "Current Investment in Innovation Appplications in the U.S."
 runtime: shiny
 output: 
   flexdashboard::flex_dashboard:
@@ -15,14 +15,12 @@ library(shiny)
 library(reshape2)
 library(dplyr)
 library(plotly)
-library(shiny)
-library(reshape2)
-library(dplyr)
-library(plotly)
 library(shinythemes)
 library(stringr)
 library(ggplot2)
 library(plyr)
+options(scipen = 4)
+
 
 #Load and transform Data
 data <- read.csv("./Investingininnovation2010.csv", header = TRUE)
@@ -47,8 +45,8 @@ iaInput <- reactive({
     data <- subset(data, State %in% input$StateSelect)
   }
   # Grant.Type Filter
-  if (length(input$Grant.TypeSelect) > 0 ) {
-    data <- subset(data, Grant.Type %in% input$Grant.TypeSelect)
+  if (length(input$GrantTypeSelect) > 0 ) {
+    data <- subset(data, Grant.Type %in% input$GrantTypeSelect)
   }
   # Private Match Waiver Filter
   if (length(input$Private.Match.WaiverSelect)>0) {
@@ -123,7 +121,7 @@ renderValueBox({
 ```
 
 
-### Worlds Selected
+### States Selected
 
 ```{r}
 renderGauge({
@@ -173,9 +171,10 @@ renderPlotly({
     data <- iaInput() 
     ggplotly(
       ggplot(data= data, aes(x = Award.Requested, fill = State)) + 
-        geom_histogram() +   theme(axis.title.x=element_blank(),
-                               axis.text.x=element_blank(),
-                               axis.ticks.x=element_blank()) +
+        geom_histogram() +   
+        # theme(axis.title.x=element_blank(),
+        #                        axis.text.x=element_blank(),
+        #                        axis.ticks.x=element_blank()) +
         ggtitle("Count by Award Requested") +
         xlab("Award Requested") +
         ylab("Count")) 
@@ -191,7 +190,8 @@ Row
 
 ```{r}
 DT::renderDataTable({
-  subset(iaInput(), subset(data, select = c(Applicant, City, State, Project.Title, Grant.Type, Award.Requested, Location)))
+  data <- iaInput()
+  subset(data, select = c(Applicant, City, State, Project.Title, Grant.Type, Award.Requested, Location))
 })
 ```
 
