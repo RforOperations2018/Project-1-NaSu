@@ -1,0 +1,198 @@
+---
+title: "Starwars Flex Dashboard"
+runtime: shiny
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: row
+    vertical_layout: fill
+    theme: sandstone
+    favicon: favicon.ico
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(shiny)
+library(reshape2)
+library(dplyr)
+library(plotly)
+library(shiny)
+library(reshape2)
+library(dplyr)
+library(plotly)
+library(shinythemes)
+library(stringr)
+library(ggplot2)
+library(plyr)
+
+#Load and transform Data
+data <- read.csv("./Investingininnovation2010.csv", header = TRUE)
+
+data.load <- transform(data, 
+                  Award.Length = mapvalues(Award.Length,
+                                           c("","1 years","2 years","3 years","4 years","5 years"), c(NA,1,2,3,4,5)))
+
+mutate(data.load, Project.Title = as.character(Project.Title),
+       Grant.Type = as.factor(Grant.Type),
+       State = as.factor(State),
+       Applicant = as.factor(Applicant)
+       )
+data.load$Award.Length <- as.integer(data.load$Award.Length)
+
+iaInput <- reactive({
+  data <- data.load %>%
+    # Slider Filter
+    filter(Award.Requested >= input$AwardRequestedSelect[1] & Award.Requested <= input$AwardRequestedSelect[2])
+  # State Filter
+  if (length(input$StateSelect) > 0 ) {
+    data <- subset(data, State %in% input$StateSelect)
+  }
+  # Grant.Type Filter
+  if (length(input$Grant.TypeSelect) > 0 ) {
+    data <- subset(data, Grant.Type %in% input$Grant.TypeSelect)
+  }
+  # Private Match Waiver Filter
+  if (length(input$Private.Match.WaiverSelect)>0) {
+    data <- subset(data, Private.Match.Waiver %in% input$Private.Match.WaiverSelect)
+  }
+  return(data)
+})
+
+
+```
+
+Plot
+=====================================
+
+Sidebar {.sidebar}
+-------------------------------------
+
+```{r}
+# select Selection
+selectInput("StateSelect",
+            "State:",
+            choices = sort(unique(data.load$State)),
+            multiple = TRUE,
+            selectize = TRUE,
+            selected = c("MA", "VA","AR"))
+# select Selection
+selectInput("GrantTypeSelect",
+            "GrantType:",
+            choices = sort(unique(data.load$Grant.Type)),
+            multiple = TRUE,
+            selectize = TRUE,
+            selected = c("Development"))
+# checkbox Selection
+checkboxGroupInput("Private.Match.WaiverSelect", 
+                   "Private.Match.Waiver:",
+                   choices = sort(unique(data.load$Private.Match.Waiver)),
+                   selected = c("Yes", "No"))
+# Award Requested Selection
+sliderInput("AwardRequestedSelect",
+            "Award Requested:",
+            min = min(data.load$Award.Requested, na.rm = T),
+            max = max(data.load$Award.Requested, na.rm = T),
+            value = c(min(data.load$Award.Requested, na.rm = T), max(data.load$Award.Requested, na.rm = T)),
+            step = 1)
+```
+
+Row 
+-------------------------------------
+
+###
+
+```{r}
+renderValueBox({
+  ia <- iaInput()
+  num <- round(mean(ia$Award.Requested, na.rm = T), 0)
+  
+  valueBox("Avg Award Requested", value = num, icon = "fa-balance-scale", color = "teal")
+})
+```
+
+
+###
+
+```{r}
+renderValueBox({
+  ia <- iaInput()
+  num <- round(mean(ia$Award.Length, na.rm = T), 2)
+
+  valueBox("Avg Award.Length", value = num, icon = "fa-sort-numeric-desc", color = "green")
+})
+
+```
+
+
+### Worlds Selected
+
+```{r}
+renderGauge({
+  rate <- round(as.numeric(length(input$StateSelect)) / length(unique(data.load$State)) * 100, 1)
+  gauge(rate, min = 0, max = 100, symbol = '%', gaugeSectors(
+  success = c(80, 100), warning = c(40, 79), danger = c(0, 39)))
+})
+```
+
+Row {.tabset .tabset-fade}
+-------------------------------------
+### Mass
+
+```{r}
+renderPlotly({
+      data <- iaInput() 
+    ggplotly(
+      ggplot(data= data, aes(x = Applicant, y = Award.Requested, fill = Grant.Type )) + 
+        geom_point() +   theme(axis.title.x=element_blank(),
+                               axis.text.x=element_blank(),
+                               axis.ticks.x=element_blank()) +
+        ggtitle("Count by Award Requested") +
+        xlab("Applicant") +
+        ylab("Award Requested"),
+      tooltip = "text") 
+})
+```
+
+### Height
+
+```{r}
+renderPlotly({
+    data <- iaInput()
+    ggplotly(
+      ggplot(data= data, aes(x = Award.Length, fill = Grant.Type)) + 
+        geom_bar() + 
+        ggtitle("Count by Award Length") +
+        xlab("Award Length") +
+        ylab("Count"),
+        tooltip = "text")
+})
+```
+
+Table
+=====================================
+
+Row 
+-------------------------------------
+### Table 
+
+```{r}
+DT::renderDataTable({
+  subset(iaInput(), subset(data, select = c(Applicant, City, State, Project.Title, Grant.Type, Award.Requested, Location)))
+})
+```
+
+Row 
+-------------------------------------
+
+```{r}
+library(shiny)
+
+ui <- fluidPage(
+  
+)
+
+server <- function(input, output, session) {
+  
+}
+
+shinyApp(ui, server)
+```

@@ -1,0 +1,49 @@
+"0","library(flexdashboard)"
+"0","library(shiny)"
+"0","library(reshape2)"
+"0","library(dplyr)"
+"0","library(plotly)"
+"0","library(shiny)"
+"0","library(reshape2)"
+"0","library(dplyr)"
+"0","library(plotly)"
+"0","library(shinythemes)"
+"2","package ‘shinythemes’ was built under R version 3.4.4"
+"0","library(stringr)"
+"2","package ‘stringr’ was built under R version 3.4.4"
+"0","library(ggplot2)"
+"0","library(plyr)"
+"2","package ‘plyr’ was built under R version 3.4.2"
+"2","--------------------------------------------------------------------------------------------------------------------------
+"
+"2","You have loaded plyr after dplyr - this is likely to cause problems.
+If you need functions from both plyr and dplyr, please load plyr first, then dplyr:
+library(plyr); library(dplyr)
+"
+"2","--------------------------------------------------------------------------------------------------------------------------
+"
+"2","
+Attaching package: ‘plyr’
+
+"
+"2","The following objects are masked from ‘package:plotly’:
+
+    arrange, mutate, rename, summarise
+
+"
+"2","The following objects are masked from ‘package:dplyr’:
+
+    arrange, count, desc, failwith, id, mutate, rename, summarise, summarize
+
+"
+"0","#Load and transform Data"
+"0","data <- read.csv(""./Investingininnovation2010.csv"", header = TRUE)"
+"0","data.load <- transform(data, "
+"0","                  Award.Length = mapvalues(Award.Length, c(""""), c(NA)))"
+"0","mutate(data.load, Project.Title = as.character(Project.Title),"
+"0","       Grant.Type = as.factor(Grant.Type),"
+"0","       State = as.factor(State),"
+"0","       Applicant = as.factor(Applicant),"
+"0","       Award.Length = as.numeric(Award.Length)"
+"0","       "
+"0","       )"

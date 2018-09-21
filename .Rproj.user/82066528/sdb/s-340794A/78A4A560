@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "---\ntitle: \"Starwars Flex Dashboard\"\nruntime: shiny\noutput: \n  flexdashboard::flex_dashboard:\n    orientation: row\n    vertical_layout: fill\n    theme: sandstone\n    favicon: favicon.ico\n---\n\n```{r setup, include=FALSE}\nlibrary(flexdashboard)\nlibrary(shiny)\nlibrary(reshape2)\nlibrary(dplyr)\nlibrary(plotly)\n\npdf(NULL)\n\nstarwars.load <- starwars %>%\n  mutate(films = as.character(films),\n         vehicles = as.character(vehicles),\n         starships = as.character(starships),\n         name = as.factor(name))\n\nswInput <- reactive({\n  starwars <- starwars.load %>%\n    # Slider Filter\n    filter(birth_year >= input$birthSelect[1] & birth_year <= input$birthSelect[2])\n  # Homeworld Filter\n  if (length(input$worldSelect) > 0 ) {\n    starwars <- subset(starwars, homeworld %in% input$worldSelect)\n  }\n  \n  return(starwars)\n})\n# Reactive melted data\nmwInput <- reactive({\n  swInput() %>%\n    melt(id = \"name\")\n})\n```\n\nPlot\n=====================================\n\nSidebar {.sidebar}\n-------------------------------------\n\n```{r}\nselectInput(\"worldSelect\",\n               \"Homeworld:\",\n               choices = sort(unique(starwars.load$homeworld)),\n               multiple = TRUE,\n               selectize = TRUE,\n               selected = c(\"Naboo\", \"Tatooine\"))\n   # Birth Selection\n   sliderInput(\"birthSelect\",\n               \"Birth Year:\",\n               min = min(starwars.load$birth_year, na.rm = T),\n               max = max(starwars.load$birth_year, na.rm = T),\n               value = c(min(starwars.load$birth_year, na.rm = T), max(starwars.load$birth_year, na.rm = T)),\n               step = 1)\n```\n\nRow \n-------------------------------------\n\n###\n\n```{r}\nrenderValueBox({\n  sw <- swInput()\n  num <- round(mean(sw$mass, na.rm = T), 2)\n  \n  valueBox(\"Avg Mass\", value = num, icon = \"fa-balance-scale\", color = \"purple\")\n})\n```\n\n###\n\n```{r}\nrenderValueBox({\n  sw <- swInput()\n  num <- round(mean(sw$height, na.rm = T), 2)\n  \n  valueBox(\"Avg Height\", value = num, icon = \"fa-sort-numeric-desc\", color = \"green\")\n})\n\nclass(starwars.load$height)\n```\n\n### Worlds Selected\n\n```{r}\nrenderGauge({\n  rate <- round(as.numeric(length(input$worldSelect)) / length(unique(starwars.load$homeworld)) * 100, 1)\n  gauge(rate, min = 0, max = 100, symbol = '%', gaugeSectors(\n  success = c(80, 100), warning = c(40, 79), danger = c(0, 39)))\n})\n```\n\nRow {.tabset .tabset-fade}\n-------------------------------------\n\n### Mass\n\n```{r}\nrenderPlotly({\n  dat <- subset(mwInput(), variable == \"mass\")\n  ggplot(data = dat, aes(x = name, y = as.numeric(value), fill = name)) + geom_bar(stat = \"identity\")\n})\n```\n\n### Height\n\n```{r}\nrenderPlotly({\n  dat <- subset(mwInput(),  variable == \"height\")\n  ggplot(data = dat, aes(x = name, y = as.numeric(value), fill = name)) + geom_bar(stat = \"identity\")\n})\n```\n\nTable\n=====================================\n\nRow \n-------------------------------------\n\n### Table \n\n```{r}\nDT::renderDataTable({\n  subset(swInput(), select = c(name, height, mass, birth_year, homeworld, species))\n})\n```\n\nRow \n-------------------------------------\n\n```{r}\nlibrary(shiny)\n\nui <- fluidPage(\n  \n)\n\nserver <- function(input, output, session) {\n  \n}\n\nshinyApp(ui, server)\n```",
+    "created" : 1537476165084.000,
+    "dirty" : true,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3566310101",
+    "id" : "78A4A560",
+    "lastKnownWriteTime" : 1537488252,
+    "last_content_update" : 1537489348476,
+    "path" : "C:/Users/sunas/Desktop/Courses/R shiny/Class_6-Dashboards-master/Flexdashboard - Final/Star_Wars_Flex.Rmd",
+    "project_path" : null,
+    "properties" : {
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}
