@@ -1,5 +1,5 @@
 ---
-title: "Current Investment in Innovation Appplications in the U.S."
+title: "Current Investment in Innovative Appplications in the U.S."
 runtime: shiny
 output: 
   flexdashboard::flex_dashboard:
@@ -65,21 +65,21 @@ Sidebar {.sidebar}
 -------------------------------------
 
 ```{r}
-# select Selection
+# State select Selection
 selectInput("StateSelect",
             "State:",
             choices = sort(unique(data.load$State)),
             multiple = TRUE,
             selectize = TRUE,
-            selected = c("MA", "VA","AR"))
-# select Selection
+            selected = c("MA"))
+# Grant Type select Selection
 selectInput("GrantTypeSelect",
             "GrantType:",
             choices = sort(unique(data.load$Grant.Type)),
             multiple = TRUE,
             selectize = TRUE,
             selected = c("Development"))
-# checkbox Selection
+# Private Match Waiver checkbox Selection
 checkboxGroupInput("Private.Match.WaiverSelect", 
                    "Private.Match.Waiver:",
                    choices = sort(unique(data.load$Private.Match.Waiver)),
@@ -115,7 +115,7 @@ renderValueBox({
   ia <- iaInput()
   num <- round(mean(ia$Award.Length, na.rm = T), 2)
 
-  valueBox("Avg Award.Length", value = num, icon = "fa-sort-numeric-desc", color = "green")
+  valueBox("Avg Award Length", value = num, icon = "fa-sort-numeric-desc", color = "green")
 })
 
 ```
@@ -133,7 +133,7 @@ renderGauge({
 
 Row {.tabset .tabset-fade}
 -------------------------------------
-### Mass
+### Want to get a picture of how many amount requested by applicants? Clik!
 
 ```{r}
 renderPlotly({
@@ -143,14 +143,13 @@ renderPlotly({
         geom_point() +   theme(axis.title.x=element_blank(),
                                axis.text.x=element_blank(),
                                axis.ticks.x=element_blank()) +
-        ggtitle("Count by Award Requested") +
+        ggtitle("Distrubution of Award Requested by Grant Type") +
         xlab("Applicant") +
-        ylab("Award Requested"),
-      tooltip = "text") 
+        ylab("Award Requested"))
 })
 ```
 
-### Height
+### Want to know the normal awards length for different grant type? Clik!
 
 ```{r}
 renderPlotly({
@@ -158,24 +157,20 @@ renderPlotly({
     ggplotly(
       ggplot(data= data, aes(x = Award.Length, fill = Grant.Type)) + 
         geom_bar() + 
-        ggtitle("Count by Award Length") +
+        ggtitle("Distribution of Award Length by Grant Type") +
         xlab("Award Length") +
-        ylab("Count"),
-        tooltip = "text")
+        ylab("Count"))
 })
 ```
 
-### HH
+### Want to compare which state requests most awards? Clik!
 ```{r}
 renderPlotly({
     data <- iaInput() 
     ggplotly(
       ggplot(data= data, aes(x = Award.Requested, fill = State)) + 
         geom_histogram() +   
-        # theme(axis.title.x=element_blank(),
-        #                        axis.text.x=element_blank(),
-        #                        axis.ticks.x=element_blank()) +
-        ggtitle("Count by Award Requested") +
+        ggtitle("Distribution of Award Requested by States") +
         xlab("Award Requested") +
         ylab("Count")) 
 })
