@@ -167,6 +167,21 @@ renderPlotly({
 })
 ```
 
+### HH
+```{r}
+renderPlotly({
+    data <- iaInput() 
+    ggplotly(
+      ggplot(data= data, aes(x = Award.Requested, fill = State)) + 
+        geom_histogram() +   theme(axis.title.x=element_blank(),
+                               axis.text.x=element_blank(),
+                               axis.ticks.x=element_blank()) +
+        ggtitle("Count by Award Requested") +
+        xlab("Award Requested") +
+        ylab("Count")) 
+})
+```
+
 Table
 =====================================
 
