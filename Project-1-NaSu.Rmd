@@ -102,7 +102,7 @@ Row
 renderValueBox({
   ia <- iaInput()
   num <- round(mean(ia$Award.Requested, na.rm = T), 0)
-  
+  # In the future for larger
   valueBox("Avg Award Requested", value = num, icon = "fa-balance-scale", color = "teal")
 })
 ```
@@ -194,6 +194,7 @@ Row
 -------------------------------------
 
 ```{r}
+# I'm not sure why this is in here, but you're missing a third page.
 library(shiny)
 
 ui <- fluidPage(
